@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Be My Valentine 💘</title>
+  <style>
+    :root{
+      --bg1:#ffe3ec;
+      --bg2:#fff7fb;
+      --ink:#2b1b1f;
+      --pink:#ff3b7a;
+      --pink2:#ff7aa6;
+      --card:#ffffffcc;
+      --shadow: 0 20px 60px rgba(0,0,0,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 900px at 20% 10%, var(--bg2), transparent 60%),
+        radial-gradient(1100px 800px at 80% 0%, #fff, transparent 55%),
+        radial-gradient(900px 700px at 80% 90%, #ffd1e0, transparent 55%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    /* Floating hearts */
+    .hearts{position:fixed; inset:0; pointer-events:none; overflow:hidden;}
+    .heart{
+      position:absolute;
+      width:14px; height:14px;
+      transform: rotate(45deg);
+      background: var(--pink);
+      opacity:.75;
+      filter: drop-shadow(0 6px 10px rgba(255,59,122,.25));
+      animation: floatUp linear forwards;
+    }
+    .heart:before,.heart:after{
+      content:"";
+      position:absolute;
+      width:14px;height:14px;
+      background: inherit;
+      border-radius:50%;
+    }
+    .heart:before{left:-7px; top:0;}
+    .heart:after{left:0; top:-7px;}
+    @keyframes floatUp{
+      from{ transform: translateY(0) rotate(45deg) scale(1); opacity:.0; }
+      10%{opacity:.8}
+      to{ transform: translateY(-110vh) rotate(45deg) scale(1.25); opacity:0; }
+    }
+
+    /* Layout */
+    .wrap{
+      position:relative;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      width:min(720px, 92vw);
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.55);
+      box-shadow: var(--shadow);
+      border-radius:28px;
+      padding:28px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .ribbon{
+      position:absolute;
+      inset:-120px -160px auto auto;
+      width:380px;
+      height:380px;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,0) 55%),
+                  radial-gradient(circle at 70% 60%, rgba(255,59,122,.35), rgba(255,59,122,0) 60%),
+                  radial-gradient(circle at 35% 70%, rgba(255,122,166,.25), rgba(255,122,166,0) 60%);
+      transform: rotate(12deg);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      background: rgba(255,255,255,.7);
+      border:1px solid rgba(255,59,122,.18);
+      box-shadow: 0 12px 28px rgba(255,59,122,.12);
+      font-weight:650;
+      letter-spacing:.2px;
+    }
+
+    .title{
+      margin:16px 0 10px;
+      font-size: clamp(28px, 4.6vw, 48px);
+      line-height:1.1;
+      letter-spacing:-.02em;
+      text-align:center;
+    }
+
+    .subtitle{
+      margin:0 0 18px;
+      font-size: clamp(14px, 2.2vw, 18px);
+      opacity:.9;
+      text-align:center;
+    }
+
+    @media (max-width: 720px){
+      body{overflow:auto}
+      .wrap{height:auto; min-height:100%; padding:18px;}
+    }
+
+    .mini{
+      font-size:12px;
+      opacity:.75;
+    }
+
+    .hidden{display:none !important;}
+
+    /* Quiz */
+    .q-grid{display:grid; gap:12px; text-align:center;}
+    .q{
+      background: rgba(255,255,255,.72);
+      border:1px solid rgba(43,27,31,.10);
+      border-radius:18px;
+      padding:18px;
+      text-align:center;
+    }
+    .q .q-title{font-weight:900; margin:0; font-size: clamp(18px, 2.8vw, 22px);}
+
+    .options{
+      display:grid;
+      gap:10px;
+      justify-items:center;
+      margin-top:14px;
+    }
+
+    .option{
+      width:min(460px, 100%);
+      text-align:center;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(43,27,31,.12);
+      background: rgba(255,255,255,.9);
+      cursor:pointer;
+      font: inherit;
+      font-weight:750;
+      box-shadow: 0 12px 26px rgba(0,0,0,.06);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, filter .12s ease;
+    }
+    .option:hover{transform: translateY(-1px)}
+    .option:active{transform: translateY(1px) scale(.99)}
+    .option.good{border-color: rgba(18,160,90,.35); box-shadow: 0 14px 30px rgba(18,160,90,.12)}
+    .option.bad{border-color: rgba(255,59,122,.35); box-shadow: 0 14px 30px rgba(255,59,122,.14)}
+
+    @keyframes shake{
+      0%,100%{transform: translateX(0)}
+      15%{transform: translateX(-10px)}
+      30%{transform: translateX(10px)}
+      45%{transform: translateX(-8px)}
+      60%{transform: translateX(8px)}
+      75%{transform: translateX(-5px)}
+      90%{transform: translateX(5px)}
+    }
+    .shake{animation: shake .45s ease;}
+
+    .error{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(255,59,122,.10);
+      border:1px solid rgba(255,59,122,.22);
+      font-size: 13px;
+      text-align:center;
+    }
+
+    .progress{
+      height:10px;
+      border-radius:999px;
+      background: rgba(43,27,31,.08);
+      overflow:hidden;
+      border:1px solid rgba(43,27,31,.08);
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      transition: width .22s ease;
+    }
+
+    /* Buttons */
+    .btn{
+      border:0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .btn:active{transform: translateY(1px) scale(.99)}
+
+    .btn-yes{
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:white;
+      box-shadow: 0 18px 40px rgba(255,59,122,.28);
+    }
+    .btn-yes:hover{filter:saturate(1.05) brightness(1.02); transform: translateY(-1px)}
+
+    .btn-no{
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(43,27,31,.14);
+      box-shadow: 0 14px 32px rgba(0,0,0,.08);
+    }
+
+    /* Valentine page */
+    .elleHeader{
+      text-align:center;
+      font-size: clamp(32px, 5vw, 60px);
+      margin:0 0 22px 0;
+      font-weight:900;
+      letter-spacing:-.02em;
+      background: linear-gradient(135deg, #ff3b7a, #ff7aa6, #ffb3cf);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradientShift 6s ease infinite, softGlow 2.8s ease-in-out infinite;
+      text-shadow: 0 0 18px rgba(255, 122, 166, 0.35);
+    }
+
+    @keyframes gradientShift{
+      0%{background-position: 0% 50%;}
+      50%{background-position: 100% 50%;}
+      100%{background-position: 0% 50%;}
+    }
+
+    @keyframes softGlow{
+      0%,100%{text-shadow: 0 0 14px rgba(255,122,166,.35), 0 0 28px rgba(255,122,166,.25);}
+      50%{text-shadow: 0 0 24px rgba(255,122,166,.6), 0 0 46px rgba(255,122,166,.4);}
+    }
+
+    .centerStack{
+      display:grid;
+      place-items:center;
+      text-align:center;
+      gap:18px;
+      padding: 6px 0 10px;
+    }
+    .valTitle{
+      margin:0;
+      font-size: clamp(24px, 4vw, 40px);
+      line-height:1.1;
+      letter-spacing:-.02em;
+    }
+    .choices{
+      display:flex;
+      gap:14px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    .big-heart{
+      width:110px;
+      aspect-ratio:1;
+      margin: 0 auto;
+      position:relative;
+      transform: rotate(45deg);
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      border-radius: 18px;
+      filter: drop-shadow(0 18px 30px rgba(255,59,122,.25));
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    .big-heart:before,.big-heart:after{
+      content:"";
+      position:absolute;
+      width:110px;height:110px;
+      border-radius:50%;
+      background: inherit;
+    }
+    .big-heart:before{left:-55px; top:0;}
+    .big-heart:after{left:0; top:-55px;}
+    @keyframes pulse{
+      0%,100%{transform: rotate(45deg) scale(1)}
+      50%{transform: rotate(45deg) scale(1.06)}
+    }
+
+    /* Modal */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(16,12,14,.42);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:50;
+    }
+    .overlay.show{display:flex;}
+    .modal{
+      width:min(560px, 92vw);
+      background: white;
+      border-radius:26px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.28);
+      padding:22px;
+      position:relative;
+      overflow:hidden;
+      text-align:center;
+    }
+    .modal .sparkle{
+      position:absolute;
+      inset:-140px -160px auto auto;
+      width:420px;
+      height:420px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,59,122,.45), rgba(255,59,122,0) 55%),
+        radial-gradient(circle at 65% 55%, rgba(255,122,166,.35), rgba(255,122,166,0) 60%),
+        radial-gradient(circle at 35% 75%, rgba(255,220,236,.9), rgba(255,220,236,0) 62%);
+      transform: rotate(8deg);
+      opacity:.95;
+      pointer-events:none;
+    }
+    .modal h2{margin:4px 0 8px; font-size: clamp(22px, 3.8vw, 34px);}
+    .modal p{margin:0; opacity:.92; white-space:pre-wrap;}
+    .close{
+      position:absolute;
+      top:12px; right:12px;
+      border:0;
+      width:42px; height:42px;
+      border-radius:999px;
+      background: rgba(255,255,255,.9);
+      border:1px solid rgba(43,27,31,.10);
+      cursor:pointer;
+      font-size:18px;
+      line-height:1;
+    }
+
+    /* Footer */
+    .footer{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      opacity:.8;
+      font-size:12px;
+      text-align:center;
+    }
+    .footer a{color:inherit}
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <main class="wrap">
+    <!-- 1) QUIZ GATE (shows first) -->
+    <section class="card" id="quizCard" aria-label="Quiz gate">
+      <div class="ribbon"></div>
+      <div class="badge">🧩 <span>Mini Love Quiz</span></div>
+      <h1 class="title">Wait… one thing first 😄</h1>
+      <p class="subtitle">Answer correctly to unlock the real question.</p>
+
+      <div class="q-grid">
+        <div class="progress" aria-label="Progress">
+          <div id="bar"></div>
+        </div>
+
+        <div class="q" id="qBox">
+          <p class="q-title" id="qTitle">Question</p>
+          <div id="options" class="options"></div>
+        </div>
+
+        <div class="error hidden" id="quizError">Oops—wrong answer. Try again 💗</div>
+
+        
+      </div>
+    </section>
+
+    <!-- 2) VALENTINE PAGE (hidden until quiz is passed) -->
+    <section class="card hidden" id="valentineCard" aria-label="Valentine card">
+      <div class="ribbon"></div>
+      <h1 class="elleHeader">My Love Elle</h1>
+
+      <div class="centerStack">
+        
+        <h1 class="valTitle">Will you be my Valentine? 💘</h1>
+        <div class="choices">
+          <button class="btn btn-yes" id="yesBtn" type="button">Yes 💖</button>
+          <button class="btn btn-no" id="noBtn" type="button">No 😅</button>
+        </div>
+      </div>
+
+      
+    </section>
+  </main>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Success modal">
+    <div class="modal">
+      <div class="sparkle"></div>
+      <button class="close" id="closeModal" aria-label="Close">✕</button>
+      <h2 id="modalTitle">YAY!! 💞</h2>
+      <p id="modalText"></p>
+    </div>
+  </div>
+
+  <script>
+    // If anything below is unclear (e.g., the exact choices for Q2), tell me what you want and I'll adjust it.
+
+    // ====== Helpers ======
+    const $ = (id) => document.getElementById(id);
+
+    
+    // ====== Floating hearts generator ======
+    const heartsWrap = $('hearts');
+    let heartInterval = null;
+
+    function rand(min, max){
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function spawnHeart(burst = false){
+      if (!heartsWrap) return;
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+
+      const size = burst ? rand(12, 22) : rand(10, 18);
+      heart.style.width = size + 'px';
+      heart.style.height = size + 'px';
+      heart.style.left = rand(0, 100) + 'vw';
+      heart.style.bottom = '-20px';
+      heart.style.opacity = String(rand(35, 85) / 100);
+      heart.style.background = `linear-gradient(135deg, rgba(255,59,122,${rand(70,95)/100}), rgba(255,122,166,${rand(60,95)/100}))`;
+
+      const duration = burst ? rand(1400, 2600) : rand(4200, 7800);
+      heart.style.animationDuration = duration + 'ms';
+
+      heartsWrap.appendChild(heart);
+      setTimeout(() => heart.remove(), duration + 200);
+    }
+
+    function startHearts(){
+      if (heartInterval) return;
+      heartInterval = setInterval(() => spawnHeart(false), 240);
+    }
+
+    function burstHearts(count = 20){
+      for (let i=0; i<count; i++){
+        setTimeout(() => spawnHeart(true), i * 35);
+      }
+    }
+
+    startHearts();
+
+    // ====== Quiz gate logic ======
+    const quizCard = $('quizCard');
+    const valentineCard = $('valentineCard');
+    const quizError = $('quizError');
+    const resetQuiz = $('resetQuiz');
+    const bar = $('bar');
+    const qTitle = $('qTitle');
+    const optionsWrap = $('options');
+
+    // Multiple-choice quiz (step-by-step)
+    // Q2: “any of the choices” = all options count as correct
+    const quiz = [
+      {
+        title: 'Where did we first met?',
+        options: ['Church', 'School', 'Mall', 'Online'],
+        correct: 'Church'
+      },
+      {
+        title: 'What do we love spending time together?',
+        options: ['Eating together 🍜', 'Watching movies 🎬', 'Talking / chika time 💬', 'Just being together 🫶'],
+        correct: 'ANY'
+      },
+      {
+        title: 'Who fell in love first?',
+        options: ['Me', 'You', 'Both at the same time'],
+        correct: 'Me'
+      }
+    ];
+
+    let step = 0;
+
+    function setProgress(){
+      if (!bar) return;
+      bar.style.width = (step / quiz.length * 100) + '%';
+    }
+
+    function shake(){
+      if (!quizCard) return;
+      quizCard.classList.remove('shake');
+      void quizCard.offsetWidth; // reflow
+      quizCard.classList.add('shake');
+    }
+
+    function renderStep(){
+      const q = quiz[step];
+      if (qTitle) qTitle.textContent = q.title;
+      if (quizError) quizError.classList.add('hidden');
+
+      if (!optionsWrap) return;
+      optionsWrap.innerHTML = '';
+
+      q.options.forEach((text) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option';
+        btn.textContent = text;
+        btn.addEventListener('click', () => choose(text, btn));
+        optionsWrap.appendChild(btn);
+      });
+
+      setProgress();
+    }
+
+    function choose(answer, btnEl){
+      const q = quiz[step];
+      const isCorrect = (q.correct === 'ANY') ? true : (answer === q.correct);
+
+      if (isCorrect){
+        btnEl.classList.add('good');
+        burstHearts(10);
+
+        setTimeout(() => {
+          step += 1;
+
+          if (step >= quiz.length){
+            if (quizCard) quizCard.classList.add('hidden');
+            if (valentineCard) valentineCard.classList.remove('hidden');
+            if (bar) bar.style.width = '100%';
+            burstHearts(22);
+            valentineCard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }else{
+            renderStep();
+          }
+        }, 360);
+      }else{
+        btnEl.classList.add('bad');
+        if (quizError) quizError.classList.remove('hidden');
+        shake();
+      }
+    }
+
+    function restart(e){
+      if (e) e.preventDefault();
+      step = 0;
+      if (valentineCard) valentineCard.classList.add('hidden');
+      if (quizCard) quizCard.classList.remove('hidden');
+      renderStep();
+      burstHearts(10);
+    }
+
+    if (resetQuiz) resetQuiz.addEventListener('click', restart);
+
+    // Start quiz
+    renderStep();
+
+    // ====== Valentine buttons ======
+    const yesBtn = $('yesBtn');
+    const noBtn = $('noBtn');
+    const overlay = $('overlay');
+    const closeModal = $('closeModal');
+
+    function showModal(){
+      if (!overlay) return;
+      overlay.classList.add('show');
+
+      // "Confetti" effect via big hearts burst
+      burstHearts(70);
+
+      const modalTitle = $('modalTitle');
+      const modalText = $('modalText');
+      if (modalTitle) modalTitle.textContent = 'YAY!! 💞';
+      if (modalText) modalText.textContent =
+`You just made me the happiest. 💗\n\nThank you for choosing me — today and always.\nI love you so much. 🌹`;
+    }
+
+    function hideModal(){
+      if (!overlay) return;
+      overlay.classList.remove('show');
+    }
+
+    if (yesBtn) yesBtn.addEventListener('click', showModal);
+
+    // (Optional behavior) If you want the "No" button to do something else (e.g., show a cute message), tell me.
+        // Make the "No" button run away 😄
+    function dodgeNo(){
+      if (!noBtn || !valentineCard) return;
+
+      // Ensure positioning context
+      valentineCard.style.position = 'relative';
+      noBtn.style.position = 'absolute';
+
+      const cardRect = valentineCard.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 20;
+      const maxX = cardRect.width - btnRect.width - padding;
+      const maxY = cardRect.height - btnRect.height - padding;
+
+      const x = Math.floor(Math.random() * (maxX > 0 ? maxX : 0));
+      const y = Math.floor(Math.random() * (maxY > 0 ? maxY : 0));
+
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+      noBtn.style.zIndex = '20';
+    }
+
+    if (noBtn){
+      noBtn.addEventListener('mouseenter', dodgeNo);
+      noBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        dodgeNo();
+      }, { passive:false });
+      noBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dodgeNo();
+      });
+    }
+
+    if (closeModal) closeModal.addEventListener('click', hideModal);
+    if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) hideModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideModal(); });
+
+    // ====== Lightweight self-tests (console) ======
+    (function runTests(){
+      try{
+        console.assert(Array.isArray(quiz) && quiz.length === 3, 'Quiz should have 3 questions');
+        console.assert(quiz[0].correct === 'Church', 'Q1 correct should be Church');
+        console.assert(quiz[1].correct === 'ANY', 'Q2 correct should be ANY');
+        console.assert(quiz[2].correct === 'Me', 'Q3 correct should be Me');
+        console.assert(!!$('qTitle') && !!$('options') && !!$('bar'), 'Quiz UI elements should exist');
+        console.assert(!!$('yesBtn') && !!$('noBtn'), 'Valentine buttons should exist');
+      }catch(err){
+        // Don't break the page if assertions fail
+        console.warn('Self-tests failed:', err);
+      }
+    })();
+  </script>
+</body>
+</html>
